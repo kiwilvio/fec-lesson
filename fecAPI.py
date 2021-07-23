@@ -11,20 +11,26 @@ operation = 'candidates'
 # get key from environment variable
 key = os.environ['FECKEY']
 
-# additional api parameters specific to the operation
-api_parameters = {'api_key': key, 'office':'H', 'sort':'name', 'state':'MA', 'election_year':[2016]}
+api_parameters = {'api_key': key, 'office':'H', 'sort':'name', 'state':'CA', 'election_year':[2016]}
+candidates = requests.get(base_url + operation,  params = api_parameters).json()
+num_pages = candidates['pagination']['pages']
 
-# ping api
-response = requests.get(base_url + operation, params = api_parameters)
+    
+for page in range(2, num_pages+1):
+    # additional api parameters specific to the operation
+    api_parameters = {'api_key': key, 'office':'H', 'sort':'name', 'state':'CA', 'election_year':[2016], 'page': page}
 
-# print status code and load returned data into json
-print('Response Code: {0}\n'.format(response.status_code))
-data = json.loads(response.text)
+    # ping api
+    response = requests.get(base_url + operation, params = api_parameters)
 
-# save raw data
-with open('fec_api_results.json', 'w') as outfile:
-    json.dump(data, outfile)
+    # print status code and load returned data into json
+    print('Response Code: {0}\n'.format(response.status_code))
+    data = json.loads(response.text)
 
-# loop through results and print name
-for candidate in data['results']:
-    print(candidate['name'])
+    # save raw data
+    with open('fec_api_results.json', 'a') as outfile:
+        json.dump(data, outfile)
+
+    # loop through results and print name
+    for candidate in data['results']:
+        print(candidate['name'])
